@@ -6,28 +6,12 @@ import matplotlib.pyplot as plt
 import gzip
 import os
 import re
-# import rdkit components
 from rdkit import rdBase
 from rdkit import Chem
 from rdkit.Chem import AllChem
 from rdkit.Chem import Draw
 from rdkit.Chem import rdMolDescriptors
 from rdkit.Chem import rdChemReactions
-from joblib import Parallel, delayed
-import gc
-from multiprocessing import Pool
-
-
-# use IPythonConsole for pretty drawings
-from rdkit.Chem.Draw import IPythonConsole
-
-## The next line is commented out
-### because GitHub does not render svg's embedded in notebooks
-# IPythonConsole.ipython_useSVG=True
-IPythonConsole.ipython_useSVG = False
-
-# for flattening tuples and lists
-from itertools import chain
 from rdkit import RDLogger
 import random
 from argparse import ArgumentParser
@@ -82,10 +66,7 @@ class Reaction:
         else:
             self.cmpd_availability.add(f'{dataset_name}_both_miss')
 
-    def plot(self, type_='First'):
-        if type_ != 'First':
-            raise NotImplementedError
-
+    def plot(self):
         reagent = self.reag[0]
         product = self.prod[0]
         substrate = self.reag[1]
@@ -300,13 +281,9 @@ class KiloMolecules:
     def boolean_map(
             self,
             dataset_path,
-            dataset_name='pubchem',
-            mapping_mode='structure'):
+            dataset_name='pubchem'):
         """Checks each compound in the dataset for presence in another dataset
         """
-        if mapping_mode != 'structure':
-            raise NotImplementedError
-
         set_dataset = set()
 
         datasets = [dataset for dataset in os.listdir(dataset_path)]
@@ -326,12 +303,18 @@ class KiloMolecules:
 
 if __name__ == '__main__':
     parser = ArgumentParser()
-    parser.add_argument('dataset_path', type=str)
-    parser.add_argument('database_path', type=str)
-    parser.add_argument('database_name', type=str)
-    parser.add_argument('list_smarts_path', type=str)
-    parser.add_argument('path_id_reacts', type=str)
-    parser.add_argument('path_to_output_list_reacts', type=str)
+    parser.add_argument('--ds-path', dest='dataset_path', type=str, 
+                       help='dataset path of compounds for generation reactions')
+    parser.add_argument('--db-path', dest='database_path', type=str, 
+                       help='database path (for example, pubchem or zinc)')
+    parser.add_argument('--db-name', dest='database_name', type=str, 
+                       help='database name (for example, "pubchem" or "zinc"')
+    parser.add_argument('--ls-path', dest='list_smarts_path', type=str, 
+                       help='file path with reaction templates')
+    parser.add_argument('--ir-path', dest='path_id_reacts', type=str, 
+                       help='file path with generated reactions using id compounds')
+    parser.add_argument('--output', dest='path_to_output_list_reacts', type=str, 
+                       help='binary file path of generated reactions')
     args = parser.parse_args()
 
     kilomolecules = KiloMolecules(args.dataset_path)

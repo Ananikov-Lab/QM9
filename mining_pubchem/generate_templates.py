@@ -107,7 +107,7 @@ def rxn_generate(list_numsmiles, list_numsmiles_c, valent_reag_w_acet, valent_pr
 
 if __name__ == '__main__':
     parser = ArgumentParser()
-    parser.add_argument('output_path', type=str)
+    parser.add_argument('--output', dest='output_path', type=str, help='path of output file')
     args = parser.parse_args()
 
     smiles = ''
