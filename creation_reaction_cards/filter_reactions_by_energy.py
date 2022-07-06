@@ -4,19 +4,22 @@ import pickle as pkl
 def filter_reactions(reactions, model):
     need_reactions = []
     label = model.labels_
-    reaction_list, label = zip(*sorted(zip(reactions.mpairs_of_reacts, label)))
+    reaction_list, label = zip(*sorted(zip(reactions.mpairs_of_reacts, label), reverse=True))
     flag = 0
+    label_ = label[0]
     for i in range(len(reaction_list)):
         if reaction_list[i].hydro_shift == 'Without hydro-shift':
             need_reactions.append(reaction_list[i])
             continue
-        if m == 18:
+        if flag == 18:
             flag = 0
+            label_ -= 1
             continue
-        if reaction_list[i].reac_rating == 'High probably':
+        if reaction_list[i].reac_rating == 'High probably' and label_ == label[i]:
             need_reactions.append(reaction_list[i])
             flag += 1
     return need_reactions
+
 
 if __name__ == '__main__':
     parser = ArgumentParser()
