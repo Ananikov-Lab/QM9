@@ -21,6 +21,7 @@ import pickle as pkl
 RDLogger.DisableLog('rdApp.*')
 
 
+
 class Compound:
     def __init__(self, formula, gibbs_energy, smiles, dataset_presence):
         try:
@@ -199,7 +200,7 @@ class ReactionSearcher:
             reag = react.reag[0].mol_structure
             prod = react.prod[0].mol_structure
             self.other_prp['Formation/abolition of heterocycle(s)'] = {}
-            self.other_prp['Formation/abolition of functional group'] = {}
+            self.other_prp['Formation/abolition of functional group(s)'] = {}
 
             for i in range(10):
                 if i == 0 and (Chem.GetSSSR(reag) - Chem.GetSSSR(prod)) == 0:
@@ -213,13 +214,13 @@ class ReactionSearcher:
                 difference_hetero = len(reag.GetSubstructMatches(mol_hetero)) - len(
                     prod.GetSubstructMatches(mol_hetero))
                 if difference_hetero == 0:
-                    self.other_prp['Formation of heterocycle(s)'][
+                    self.other_prp['Formation/abolition of heterocycle(s)'][
                         name_hetero] = 'Heterocycle(s) is(are) not formed/abolished in react'
                 elif difference_hetero < 0:
-                    self.other_prp['Formation of heterocycle(s)'][
+                    self.other_prp['Formation/abolition of heterocycle(s)'][
                         name_hetero] = 'Heterocycle(s) is(are) formed in react'
                 elif difference_hetero > 0:
-                    self.other_prp['Formation of heterocycle(s)'][
+                    self.other_prp['Formation/abolition of heterocycle(s)'][
                         name_hetero] = 'Heterocycle(s) is(are) abolished in react'
 
             for name_group, smarts_group in all_func_group.items():
@@ -263,7 +264,7 @@ class KiloMolecules:
                     else:
                         formula[atom] = 1
 
-                gibbs_energy = round(float(scalar[14]) / 627.503, 2)  # Перевод в kcal/mol
+                gibbs_energy = round(float(scalar[14]) * 627.503, 2)  # Перевод в kcal/mol
                 smiles = f.readlines()[-2].decode("utf-8").strip().split('\t')
 
                 self.compounds.append(
@@ -308,7 +309,7 @@ if __name__ == '__main__':
     parser.add_argument('--db-path', dest='database_path', type=str, 
                        help='database path (for example, pubchem or zinc)')
     parser.add_argument('--db-name', dest='database_name', type=str, 
-                       help='database name (for example, "pubchem" or "zinc"')
+                       help='database name (for example, "pubchem" or "zinc")')
     parser.add_argument('--ls-path', dest='list_smarts_path', type=str, 
                        help='file path with reaction templates')
     parser.add_argument('--ir-path', dest='path_id_reacts', type=str, 
@@ -318,9 +319,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     kilomolecules = KiloMolecules(args.dataset_path)
-    kilomolecules.boolean_map(args.database_path, args.database_name)
-
-    with open(args.list_smarts_path, 'rb') as f:
+    print(kilomolecules.compounds[0].gibbs_energy)
+    # kilomolecules.boolean_map(args.database_path, args.database_name)
+    
+    '''with open(args.list_smarts_path, 'rb') as f:
         list_smarts = pkl.load(f)
 
     reactions = ReactionSearcher(kilomolecules)
@@ -328,4 +330,4 @@ if __name__ == '__main__':
     reactions.list_maker_reacts(args.path_id_reacts, kilomolecules)
     reactions.classifier()
     with open(args.path_to_output_list_reacts, 'wb') as f:
-        pkl.dump(reactions, f)
+        pkl.dump(reactions, f)'''

@@ -12,6 +12,10 @@ import umap.plot
 import gzip
 import os
 import matplotlib.pyplot as plt
+import sys
+sys.path.append('../')
+from mining_pubchem.find_reactions import *
+
 
 
 def generate_embeddings_dict(embeds_reag, embeds_prod, smiles_reag, smiles_prod):
@@ -39,7 +43,7 @@ def generate_embeddings_dict(embeds_reag, embeds_prod, smiles_reag, smiles_prod)
     return embeddings_of_smiles
 
 
-def reduct(method_name, n_components, embeddings, random_state=42, parameters={}):
+def reduct(method_name, embeddings, parameters={}):
     function = {
                 'PCA': PCA,
                 't-SNE': TSNE,
@@ -57,7 +61,8 @@ def reduct(method_name, n_components, embeddings, random_state=42, parameters={}
     
     
     X = embeddings
-    X_r = method(n_components, random_state, parameters).fit_transform(X)
+    
+    X_r = method().set_params(**parameters).fit_transform(X)
     
     return X_r
 
@@ -76,10 +81,6 @@ if __name__ == '__main__':
                        help='binary file of class "Reactions" with generated reactions')
     parser.add_argument('--method', dest='method_name', type=str,
                        help='name of dimensionality reduction method')
-    parser.add_argument('--ncomponents', dest='n_components', type=str,
-                       help='number of components in dimensionality reduction method')
-    parser.add_argument('--rstate', dest='random_state', type=str,
-                       help='seed of dimensionality reduction method')
     parser.add_argument('--output', dest='output_file', type=str,
                        help='path of embeddings after dimensionality reductions')
     parsed, unknown = parser.parse_known_args()
@@ -87,14 +88,14 @@ if __name__ == '__main__':
     params = {}
     
     for arg in unknown:
-        if arg.startswith('--'):
-            parser.add_argument(arg.split('=')[0], dest=arg.split("=")[0][2:])
-            params[arg.split("=")[0][2:]] = ''
+        if arg.startswith('-'):
+            parser.add_argument(arg.split('=')[0], dest=arg.split("=")[0][1:], type=int)
+            params[arg.split("=")[0][1:]] = ''
     
     args = parser.parse_args()
     
     args_param = vars(args)
-    
+
     for name in params.keys():
         params[name] = args_param[name]
         
@@ -109,8 +110,8 @@ if __name__ == '__main__':
         embedding_react = embeddings_of_smiles[Chem.MolToSmiles(reacts.reag[0].mol_structure)] \
                           - embeddings_of_smiles[Chem.MolToSmiles(reacts.prod[0].mol_structure)]
         embeddings_of_reacts.append(embedding_react)
-
-    X_r = reduct(args.method_name, args.n_components, args.embeddings_of_reacts, args.random_state, parameters=params)
+    
+    X_r = reduct(args.method_name, embeddings_of_reacts, parameters=params)
 
     with open(args.output_file, 'wb') as f:
         pkl.dump(X_r, f)

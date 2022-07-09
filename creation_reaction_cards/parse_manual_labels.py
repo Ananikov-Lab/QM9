@@ -5,6 +5,8 @@ import pytesseract
 import cv2
 import os
 import zipfile
+import pandas as pd
+import numpy as np
 
 def extract_zip(path_to_zip, output_zip):
     archive = zipfile.ZipFile(path_to_zip, 'r')
@@ -188,7 +190,13 @@ if __name__ == '__main__':
     extract_zip(args.acrhive_labels, args.output_labels)
     
     i = 0
-    for ind in range(1, len(os.listdir(args.output_labels)) + 1):
+    kernel = np.ones((7,7),np.uint8)
+    img = cv2.imread(f'{args.output_labels}/reactions-01.jpg', cv2.COLOR_BGR2HSV)
+    closing = cv2.morphologyEx(img[:, :, 0], cv2.MORPH_CLOSE, kernel)
+    df = pd.DataFrame(marks_parser(output_numbers[:4], closing))
+    
+    for ind in range(2, len(os.listdir(args.output_labels)) + 1):
+        print(ind)
         if ind < 10:
             ind = '0' + str(ind)
         img = cv2.imread(f'{args.output_labels}/reactions-{ind}.jpg', cv2.COLOR_BGR2HSV)
@@ -200,7 +208,7 @@ if __name__ == '__main__':
                     closing[y, x] = 0
 
 
-        output_numbers_ = output_numbers[i:i+4]
+        output_numbers_ = args.output_numbers[i:i+4]
 
         df = df.append(pd.DataFrame(marks_parser(args.output_numbers, closing)), sort=False)
         i += 4

@@ -1,6 +1,7 @@
 from argparse import ArgumentParser
 import pickle as pkl
-
+from rdkit import Chem
+from rdkit.Chem import AllChem
 
 def cmpd_generate(smiles, cnt, type_cmpd='non-cycle'):
     """There is an enumeration of all possible options for the multiplicity of bonds within the compounds"""
@@ -95,13 +96,15 @@ def rxn_generate(list_numsmiles, list_numsmiles_c, valent_reag_w_acet, valent_pr
     list_rxn_smarts = []
     for smarts_reag, val_reag in zip(list_numsmiles, valent_reag_w_acet):
         i = int(smarts_reag[-2])
+        smarts_frag = Chem.MolFromSmarts(smarts_reag)
         for smarts_prod, val_prod in zip(list_numsmiles_c, valent_prod):
-            rxn = f'{smarts_reag}.[#6:{i + 1}]#[#6:{i + 2}]>>{smarts_prod}'
+            rxn_smarts = f'{smarts_reag}.[#6:{i + 1}]#[#6:{i + 2}]>>{smarts_prod}'
+            rxn = AllChem.ReactionFromSmarts(rxn_smarts)
             if val_reag == val_prod:
                 hydro_shift = 'Without hydro-shift'
             else:
                 hydro_shift = 'With hydro-shift'
-            list_rxn_smarts += [[rxn, hydro_shift]]
+            list_rxn_smarts += [[rxn, hydro_shift, smarts_frag]]
     return list_rxn_smarts
 
 

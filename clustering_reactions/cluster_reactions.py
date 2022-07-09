@@ -11,10 +11,10 @@ import re
 import matplotlib.pyplot as plt
 
 
-def clustering(method_name, n_clusters, X_r, parameters={}):
+def clustering(method_name, X_r, parameters={}):
     function = {
                 'KMeans': KMeans,
-                'SpectralClustering': SpectralCluastering,
+                'SpectralClustering': SpectralClustering,
                 'AgglomerativeClustering': AgglomerativeClustering
     }
     
@@ -23,18 +23,14 @@ def clustering(method_name, n_clusters, X_r, parameters={}):
     else:
         method = function[method_name]
     
-    if len(parameters.keys() - method.__dict__.keys()) > 0:
-        raise ImportError
-    
-    
-    sc_model = method(n_clusters, parameters).fit(X_r)
+    sc_model = method().set_params(**parameters).fit(X_r)
 
     return sc_model
 
 
 def metric(model, X_r, metric_='euclidean'):
     labels = model.labels_
-    metric_value = metrics.silhouette_score(X_r, labels, metric_)
+    metric_value = metrics.silhouette_score(X_r, labels, metric=metric_)
     print(metric_value)
 
     return metric_value
@@ -56,35 +52,34 @@ def vizualization(model, X_r, path_to_plot):
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('--input', dest='input_embeds', type=str, 
-                       help='file with embeds of reactions')
+                       help='file with embeds of reactions after dim_redc')
     parser.add_argument('--method', dest='method_name', type=str, 
                        help='name of clustering method')
-    parser.add_argument('--nclusters', dest='n_clusters', type=str, 
-                       help='number clusters')
     parser.add_argument('--metric', dest='metric_name', type=str, 
                        help='name of prefer metric')
     parser.add_argument('--plot', dest='path_to_plot', type=str, 
                        help='path of plot`s figure')
     parser.add_argument('--model', dest='path_save_model', type=str, 
                        help='path of save model')
+    parsed, unknown = parser.parse_known_args()
     params = {}
     
     for arg in unknown:
-        if arg.startswith('--'):
-            parser.add_argument(arg.split('=')[0], dest=arg.split("=")[0][2:])
-            params[arg.split("=")[0][2:]] = ''
-    
+        if arg.startswith('-'):
+            parser.add_argument(arg.split('=')[0], dest=arg.split('=')[0][1:], type=int)
+            params[arg.split('=')[0][1:]] = ''
+            
     args = parser.parse_args()
     
     args_param = vars(args)
     
     for name in params.keys():
         params[name] = args_param[name]
-
+    print(params)
     with open(args.input_embeds, 'rb') as f:
         X_r = pkl.load(f)
 
-    sc_model = clustering(args.method_name, args.n_clusters, X_r, parameters=params)
+    sc_model = clustering(args.method_name, X_r, parameters=params)
     
     with open(args.path_save_model, 'wb') as f:
         pkl.dump(sc_model, f)
