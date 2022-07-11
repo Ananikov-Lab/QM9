@@ -189,7 +189,7 @@ if __name__ == '__main__':
     
     extract_zip(args.acrhive_labels, args.output_labels)
     
-    i = 0
+    i = 4
     kernel = np.ones((7,7),np.uint8)
     img = cv2.imread(f'{args.output_labels}/reactions-01.jpg', cv2.COLOR_BGR2HSV)
     closing = cv2.morphologyEx(img[:, :, 0], cv2.MORPH_CLOSE, kernel)
