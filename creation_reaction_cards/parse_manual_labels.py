@@ -1,18 +1,16 @@
 from argparse import ArgumentParser
-import pickle as pkl
-from PIL import Image
-import pytesseract
 import cv2
 import os
 import zipfile
 import pandas as pd
 import numpy as np
 
+
 def extract_zip(path_to_zip, output_zip):
     archive = zipfile.ZipFile(path_to_zip, 'r')
     archive.extractall(path=output_zip)
-    
-    
+
+
 def marks_parser(output_numbers, closing):
     dict_outputs = {
         'id reaction': output_numbers,
@@ -151,7 +149,6 @@ def marks_parser(output_numbers, closing):
         else:
             set_best_rxn_.add(0)
 
-
         dict_outputs['Run'].append(int(list(set_react_run_)[0]))
         dict_outputs['Maybe run'].append(int(list(set_react_mb_)[0]))
         dict_outputs['Not run'].append(int(list(set_react_no_)[0]))
@@ -163,7 +160,7 @@ def marks_parser(output_numbers, closing):
 
         dict_outputs['Soft'].append(int(list(set_condit_soft_)[0]))
         dict_outputs['Middle'].append(int(list(set_condit_middle_)[0]))
-        dict_outputs['Hard'].append(int(list(set_condit_hard_ )[0]))
+        dict_outputs['Hard'].append(int(list(set_condit_hard_)[0]))
 
         dict_outputs['In literature: yes'].append(int(list(set_yes_)[0]))
         dict_outputs['In literature: no'].append(int(list(set_no_)[0]))
@@ -172,29 +169,28 @@ def marks_parser(output_numbers, closing):
 
         dict_outputs['The best reaction'].append(int(list(set_best_rxn_)[0]))
     return dict_outputs
-    
-    
-    
+
+
 if __name__ == '__main__':
     parser = ArgumentParser()
-    parser.add_argument('--achive', dest='archive_labels', type=str, 
-                       help='zip of labels')
-    parser.add_argument('--output', dest='output_labels', type=str, 
-                       help='output extract zip')
-    parser.add_argument('--numbers', dest='output_numbers', type=str, 
-                       help='path of output numbers reaction id in zip')
-    parser.add_argument('--csv', dest='csv_output', type=str, 
-                       help='path of csv output')
+    parser.add_argument('--achive', dest='archive_labels', type=str,
+                        help='zip of labels')
+    parser.add_argument('--output', dest='output_labels', type=str,
+                        help='output extract zip')
+    parser.add_argument('--numbers', dest='output_numbers', type=str,
+                        help='path of output numbers reaction id in zip')
+    parser.add_argument('--csv', dest='csv_output', type=str,
+                        help='path of csv output')
     args = parser.parse_args()
-    
+
     extract_zip(args.acrhive_labels, args.output_labels)
-    
+
     i = 4
-    kernel = np.ones((7,7),np.uint8)
+    kernel = np.ones((7, 7), np.uint8)
     img = cv2.imread(f'{args.output_labels}/reactions-01.jpg', cv2.COLOR_BGR2HSV)
     closing = cv2.morphologyEx(img[:, :, 0], cv2.MORPH_CLOSE, kernel)
     df = pd.DataFrame(marks_parser(output_numbers[:4], closing))
-    
+
     for ind in range(2, len(os.listdir(args.output_labels)) + 1):
         print(ind)
         if ind < 10:
@@ -207,11 +203,9 @@ if __name__ == '__main__':
                 if color < 240:
                     closing[y, x] = 0
 
-
-        output_numbers_ = args.output_numbers[i:i+4]
+        output_numbers_ = args.output_numbers[i:i + 4]
 
         df = df.append(pd.DataFrame(marks_parser(args.output_numbers, closing)), sort=False)
         i += 4
-    
+
     df.to_csv(args.csv_output)
-    

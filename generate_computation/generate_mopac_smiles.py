@@ -1,9 +1,6 @@
-import os
 from argparse import ArgumentParser
 
-import numpy as np
 from tqdm import tqdm
-
 from openbabel import pybel
 from pybel import *
 
@@ -146,4 +143,3 @@ if __name__ == "__main__":
     list_rxns = parse_file_rxn(args.path_map_rxns)
     list_prods_smiles = parse_list_prods(list_rxns)
     generate_rxn_smiles(args.path_to_input, args.path_to_output, list_prods_smiles)
-    

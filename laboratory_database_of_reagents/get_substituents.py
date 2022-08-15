@@ -14,6 +14,7 @@ def CIRconvert(ids):
     except:
         return 'Did not work'
 
+
 def lab_alkynes(path_input, path_output):
     with open(path_input, 'rt', encoding='windows-1252') as f:
         acet = Chem.MolFromSmarts('C#C')
@@ -40,12 +41,10 @@ def lab_alkynes(path_input, path_output):
                         print(err)
 
 
-
 if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('--input-db', dest='input', type=str, help='input of lab database')
     parser.add_argument('--output-db', dest='output', type=str, help='output of lab database')
     args = parser.parse_args()
-    
+
     lab_alkynes(args.input, args.output)
-    

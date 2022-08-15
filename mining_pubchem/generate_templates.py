@@ -3,6 +3,7 @@ import pickle as pkl
 from rdkit import Chem
 from rdkit.Chem import AllChem
 
+
 def cmpd_generate(smiles, cnt, type_cmpd='non-cycle'):
     """There is an enumeration of all possible options for the multiplicity of bonds within the compounds"""
     list_smiles = []

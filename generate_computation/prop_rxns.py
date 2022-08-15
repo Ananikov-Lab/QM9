@@ -80,4 +80,3 @@ if __name__ == "__main__":
 
     data_to_csv(args.path_to_reags, args.path_to_alks,
                 args.path_to_prods, args.output_file)
-    

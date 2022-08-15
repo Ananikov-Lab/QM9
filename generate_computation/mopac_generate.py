@@ -31,4 +31,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     generate_mopac(args.path_to_input, args.path_to_output_dir)
-    

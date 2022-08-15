@@ -1,4 +1,3 @@
-from openbabel import pybel
 from pybel import *
 import os
 from argparse import ArgumentParser
@@ -42,5 +41,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     gjf_generate(args.path_to_input_dir, args.path_to_chk,
-                 args.ram, args,basis, args.n_proc, args.path_to_output_dir)
-    
+                 args.ram, args, args.basis, args.n_proc, args.path_to_output_dir)

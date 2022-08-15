@@ -1,4 +1,3 @@
-import pytest
 from openbabel import pybel
 from pybel import *
 
@@ -67,4 +66,3 @@ def test_some_examples():
         inchi_test = mol_.write('inchi')
         print(inchi_test, inchi_noreverse)
         assert inchi_test == inchi_noreverse
-        

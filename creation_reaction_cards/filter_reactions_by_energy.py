@@ -1,7 +1,4 @@
-from argparse import ArgumentParser
 import pickle as pkl
-import sys
-sys.path.append('../')
 from mining_pubchem.find_reactions import *
 import random
 

@@ -1,25 +1,15 @@
 import tarfile
-import numpy as np
 from tqdm import tqdm
-import pandas as pd
 import matplotlib.pyplot as plt
 import gzip
 import os
-import re
-from rdkit import rdBase
 from rdkit import Chem
-from rdkit.Chem import AllChem
 from rdkit.Chem import Draw
-from rdkit.Chem import rdMolDescriptors
 from rdkit.Chem import rdChemReactions
 from rdkit import RDLogger
-import random
 from argparse import ArgumentParser
-import pickle as pkl
-
 
 RDLogger.DisableLog('rdApp.*')
-
 
 
 class Compound:
@@ -304,24 +294,24 @@ class KiloMolecules:
 
 if __name__ == '__main__':
     parser = ArgumentParser()
-    parser.add_argument('--ds-path', dest='dataset_path', type=str, 
-                       help='dataset path of compounds for generation reactions')
-    parser.add_argument('--db-path', dest='database_path', type=str, 
-                       help='database path (for example, pubchem or zinc)')
-    parser.add_argument('--db-name', dest='database_name', type=str, 
-                       help='database name (for example, "pubchem" or "zinc")')
-    parser.add_argument('--ls-path', dest='list_smarts_path', type=str, 
-                       help='file path with reaction templates')
-    parser.add_argument('--ir-path', dest='path_id_reacts', type=str, 
-                       help='file path with generated reactions using id compounds')
-    parser.add_argument('--output', dest='path_to_output_list_reacts', type=str, 
-                       help='binary file path of generated reactions')
+    parser.add_argument('--ds-path', dest='dataset_path', type=str,
+                        help='dataset path of compounds for generation reactions')
+    parser.add_argument('--db-path', dest='database_path', type=str,
+                        help='database path (for example, pubchem or zinc)')
+    parser.add_argument('--db-name', dest='database_name', type=str,
+                        help='database name (for example, "pubchem" or "zinc")')
+    parser.add_argument('--ls-path', dest='list_smarts_path', type=str,
+                        help='file path with reaction templates')
+    parser.add_argument('--ir-path', dest='path_id_reacts', type=str,
+                        help='file path with generated reactions using id compounds')
+    parser.add_argument('--output', dest='path_to_output_list_reacts', type=str,
+                        help='binary file path of generated reactions')
     args = parser.parse_args()
 
     kilomolecules = KiloMolecules(args.dataset_path)
     print(kilomolecules.compounds[0].gibbs_energy)
     # kilomolecules.boolean_map(args.database_path, args.database_name)
-    
+
     '''with open(args.list_smarts_path, 'rb') as f:
         list_smarts = pkl.load(f)
 
