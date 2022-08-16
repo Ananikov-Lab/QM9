@@ -8,6 +8,7 @@ from rdkit.Chem import Draw
 from rdkit.Chem import rdChemReactions
 from rdkit import RDLogger
 from argparse import ArgumentParser
+import pickle as pkl
 
 RDLogger.DisableLog('rdApp.*')
 
@@ -93,14 +94,14 @@ class ReactionSearcher:
         else:
             self.compounds = dataset.compounds
 
-    def generate_reactions(self, dataset, list_smarts, output_path_reacts):
-        substrate = dataset.compounds[3]  # Acetylene
+    def generate_reactions(self, dataset, list_smarts, output_path_reacts, carb_cnt, alk_index):
+        substrate = dataset.compounds[alk_index]
         for i, compound in enumerate(dataset.compounds):
             self.compounds_id_dict[compound.inchi] = i
 
         set_unique_react = set()
         for compound_reag in tqdm(dataset.compounds):
-            if compound_reag.formula['C'] <= 7:
+            if compound_reag.formula['C'] <= carb_cnt:
                 for rxn_number in list_smarts:
                     for rxn in rxn_number:
                         Chem.Kekulize(compound_reag.mol_structure)
@@ -126,8 +127,9 @@ class ReactionSearcher:
                                                           'at') as f:
                                                     f.write(pair_of_reag_prod)
                                                 set_unique_react.add(pair_of_reag_prod)
-                                except:
-                                    pass
+                                except Exception as err:
+                                    if err != 'KekulizeException':
+                                        raise ValueError('Perhaps the format of the processed information is incorrect')
 
     def list_maker_reacts(self, path, dataset):
         list_all_reacts = []
@@ -296,6 +298,10 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('--ds-path', dest='dataset_path', type=str,
                         help='dataset path of compounds for generation reactions')
+    parser.add_argument('--carb', dest='carb_cnt', type=int, 
+                        default=7, help='max count of carbons in cmpd')
+    parser.add_argument('--index', dest='alk_index', type=int, 
+                        default=3, help='index of desired alkyne in dataset')
     parser.add_argument('--db-path', dest='database_path', type=str,
                         help='database path (for example, pubchem or zinc)')
     parser.add_argument('--db-name', dest='database_name', type=str,
@@ -309,15 +315,14 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     kilomolecules = KiloMolecules(args.dataset_path)
-    print(kilomolecules.compounds[0].gibbs_energy)
-    # kilomolecules.boolean_map(args.database_path, args.database_name)
+    kilomolecules.boolean_map(args.database_path, args.database_name)
 
-    '''with open(args.list_smarts_path, 'rb') as f:
+    with open(args.list_smarts_path, 'rb') as f:
         list_smarts = pkl.load(f)
 
     reactions = ReactionSearcher(kilomolecules)
-    reactions.generate_reactions(kilomolecules, list_smarts, args.path_id_reacts)
+    reactions.generate_reactions(kilomolecules, list_smarts, args.path_id_reacts, args.carb_cnt, args.alk_index)
     reactions.list_maker_reacts(args.path_id_reacts, kilomolecules)
     reactions.classifier()
     with open(args.path_to_output_list_reacts, 'wb') as f:
-        pkl.dump(reactions, f)'''
+        pkl.dump(reactions, f)

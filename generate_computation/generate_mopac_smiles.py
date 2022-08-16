@@ -1,9 +1,8 @@
 from argparse import ArgumentParser
 
 from tqdm import tqdm
-from openbabel import pybel
 from pybel import *
-
+from openbabel import pybel
 
 def getreversed(smiles):
     conv = pybel.ob.OBConversion()
@@ -81,8 +80,6 @@ def generate_rxn_smiles(path_to_input, path_to_output, list_prods_smiles):
                     r1 = f'({smiles[:bond_index]})'
                 except:
                     r1 = 'H'
-                    print(1)
-
                 try:
                     r2 = f'({smiles[bond_index + 3:]})'
                 except:
@@ -140,6 +137,7 @@ if __name__ == "__main__":
                         help="Third - path of output file")
     args = parser.parse_args()
 
+    
     list_rxns = parse_file_rxn(args.path_map_rxns)
     list_prods_smiles = parse_list_prods(list_rxns)
     generate_rxn_smiles(args.path_to_input, args.path_to_output, list_prods_smiles)
