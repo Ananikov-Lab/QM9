@@ -1,8 +1,8 @@
 from argparse import ArgumentParser
 
 from tqdm import tqdm
-from pybel import *
 from openbabel import pybel
+from pybel import *
 
 def getreversed(smiles):
     conv = pybel.ob.OBConversion()
@@ -137,6 +137,7 @@ if __name__ == "__main__":
                         help="Third - path of output file")
     args = parser.parse_args()
 
+    
     
     list_rxns = parse_file_rxn(args.path_map_rxns)
     list_prods_smiles = parse_list_prods(list_rxns)

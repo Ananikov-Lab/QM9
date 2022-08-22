@@ -14,37 +14,37 @@ def data_to_csv(path_to_reags, path_to_alks, path_to_prods, output_file):
     smiles_reag = []
     smiles_alk = []
     smiles_prod = []
-    gibbs_energy = []
+    gibbs_energy_react = []
 
     with open(path_to_reags) as f:
         lines = f.readlines()
         for line in lines:
-            line = line.split('\t')
+            line = line.strip().split('\t')
             index = line[0]
             smiles = line[1]
-            gibbs_energy = line[2][:-1]
-            dict_reag[index] = gibbs_energy
-            dict_reag_smiles = smiles
+            gibbs_energy = line[2]
+            dict_reag[index] = float(gibbs_energy)
+            dict_reag_smiles[index] = smiles
 
     with open(path_to_alks) as f:
         lines = f.readlines()
         for line in lines:
-            line = line.split('\t')
+            line = line.strip().split('\t')
             index = line[0]
             smiles = line[1]
-            gibbs_energy = line[2][:-1]
-            dict_alkyne[index] = gibbs_energy
-            dict_alkyne_smiles = smiles
+            gibbs_energy = line[2]
+            dict_alkyne[index] = float(gibbs_energy)
+            dict_alkyne_smiles[index] = smiles
 
     with open(path_to_prods) as f:
         lines = f.readlines()
         for line in lines:
-            line = line.split('\t')
+            line = line.strip().split('\t')
             index = line[0]
             smiles = line[1]
-            gibbs_energy = line[2][:-1]
-            dict_prod[index] = gibbs_energy
-            dict_prod_smiles = smiles
+            gibbs_energy = line[2]
+            dict_prod[index] = float(gibbs_energy)
+            dict_prod_smiles[index] = smiles
 
     for index, energy in dict_prod.items():
         index_ = index.split('_')
@@ -54,13 +54,13 @@ def data_to_csv(path_to_reags, path_to_alks, path_to_prods, output_file):
         smiles_reag.append(dict_reag_smiles[reag])
         smiles_alk.append(dict_alkyne_smiles[alk])
         smiles_prod.append(dict_prod_smiles[index])
-        gibbs_energy.append(rxn_gibbs_energy)
+        gibbs_energy_react.append(rxn_gibbs_energy)
 
     df = pd.DataFrame({
         'reag': smiles_reag,
         'alkyne': smiles_alk,
         'prod': smiles_prod,
-        'gibbs energy': gibbs_energy}
+        'gibbs energy': gibbs_energy_react}
     )
 
     df.to_csv(output_file)
