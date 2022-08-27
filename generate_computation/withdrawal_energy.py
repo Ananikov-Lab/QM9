@@ -5,13 +5,13 @@ import os
 def energy(path_to_mols, smiles_prods_dict, output_file):
     filenames = [filename for filename in os.listdir(path_to_mols) if filename.endswith('.log')]
     for filename in tqdm(filenames):
-        index = filename[19:-4]
-        with open(f'{path_to_mols}/{filename}') as myfile:
+        index = filename.split('_', 2)[-1]
+        with open(os.path.join(path_to_mols, filename)) as myfile:
             lines = myfile.readlines()
             for line in lines:
                 if line.startswith(' Sum of electronic and thermal Free Energies= '):
                     line = line.strip().split(' ')
-                    mol_energy = round(float(line[-1]), 2)
+                    mol_energy = float(line[-1])
                     smiles = smiles_prods_dict[index]
                     with open(output_file, 'at') as f:
                         f.write(f'{index}\t{smiles}\t{mol_energy}\n')
