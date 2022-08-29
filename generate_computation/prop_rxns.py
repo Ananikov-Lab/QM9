@@ -2,64 +2,51 @@ import pandas as pd
 from argparse import ArgumentParser
 
 
+def extract_energy(path_to_cmpds, dict_cmpds, dict_cmpds_smiles):
+    with open(path_to_cmpds) as f:
+        lines = f.readlines()
+        for line in lines:
+            line = line.strip().split('\t')
+            index = line[0]
+            smiles = line[1]
+            gibbs_energy = line[2]
+            dict_cmpds[index] = float(gibbs_energy)
+            dict_cmpds_smiles[index] = smiles
+    return dict_cmpds, dict_cmpds_smiles
+
+
 def data_to_csv(path_to_reags, path_to_alks, path_to_prods, output_file):
-    dict_reag_smiles = {}
-    dict_alkyne_smiles = {}
-    dict_prod_smiles = {}
+    dict_reags_smiles = {}
+    dict_alks_smiles = {}
+    dict_prods_smiles = {}
 
-    dict_reag = {}
-    dict_alkyne = {}
-    dict_prod = {}
+    dict_reags = {}
+    dict_alks = {}
+    dict_prods = {}
 
-    smiles_reag = []
-    smiles_alk = []
-    smiles_prod = []
+    smiles_reags = []
+    smiles_alks = []
+    smiles_prods = []
     gibbs_energy_react = []
 
-    with open(path_to_reags) as f:
-        lines = f.readlines()
-        for line in lines:
-            line = line.strip().split('\t')
-            index = line[0]
-            smiles = line[1]
-            gibbs_energy = line[2]
-            dict_reag[index] = float(gibbs_energy)
-            dict_reag_smiles[index] = smiles
+    dict_reags, dict_reags_smiles = extract_energy(path_to_reags, dict_reags, dict_reags_smiles)
+    dict_alks, dict_alks_smiles = extract_energy(path_to_alks, dict_alks, dict_alks_smiles)
+    dict_prods, dict_prods_smiles = extract_energy(path_to_prods, dict_prods, dict_prods_smiles)
 
-    with open(path_to_alks) as f:
-        lines = f.readlines()
-        for line in lines:
-            line = line.strip().split('\t')
-            index = line[0]
-            smiles = line[1]
-            gibbs_energy = line[2]
-            dict_alkyne[index] = float(gibbs_energy)
-            dict_alkyne_smiles[index] = smiles
-
-    with open(path_to_prods) as f:
-        lines = f.readlines()
-        for line in lines:
-            line = line.strip().split('\t')
-            index = line[0]
-            smiles = line[1]
-            gibbs_energy = line[2]
-            dict_prod[index] = float(gibbs_energy)
-            dict_prod_smiles[index] = smiles
-
-    for index, energy in dict_prod.items():
-        index_ = index.split('_')
-        reag = index_[0]
-        alk = index_[1]
-        rxn_gibbs_energy = energy - dict_reag[reag] - dict_alkyne[alk]
-        smiles_reag.append(dict_reag_smiles[reag])
-        smiles_alk.append(dict_alkyne_smiles[alk])
-        smiles_prod.append(dict_prod_smiles[index])
+    for index, energy in dict_prods.items():
+        index_list = index.split('_')
+        reag = index_list[0]
+        alk = index_list[1]
+        rxn_gibbs_energy = energy - dict_reags[reag] - dict_alks[alk]
+        smiles_reags.append(dict_reags_smiles[reag])
+        smiles_alks.append(dict_alks_smiles[alk])
+        smiles_prods.append(dict_prods_smiles[index])
         gibbs_energy_react.append(rxn_gibbs_energy)
 
     df = pd.DataFrame({
-        'reag': smiles_reag,
-        'alkyne': smiles_alk,
-        'prod': smiles_prod,
+        'reags': smiles_reags,
+        'alks': smiles_alks,
+        'prods': smiles_prods,
         'gibbs energy': gibbs_energy_react}
     )
 

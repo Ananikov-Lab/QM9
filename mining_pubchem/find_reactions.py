@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 import gzip
 import os
 from rdkit import Chem
-from rdkit.Chem import Draw
 from rdkit.Chem import rdChemReactions
 from rdkit import RDLogger
 from argparse import ArgumentParser
 import pickle as pkl
+from rdkit.Chem.rdchem import KekulizeException
 
 RDLogger.DisableLog('rdApp.*')
 
@@ -127,9 +127,8 @@ class ReactionSearcher:
                                                           'at') as f:
                                                     f.write(pair_of_reag_prod)
                                                 set_unique_react.add(pair_of_reag_prod)
-                                except Exception as err:
-                                    if err != 'KekulizeException':
-                                        raise ValueError('Perhaps the format of the processed information is incorrect')
+                                except KekulizeException:
+                                    pass
 
     def list_maker_reacts(self, path, dataset):
         list_all_reacts = []
