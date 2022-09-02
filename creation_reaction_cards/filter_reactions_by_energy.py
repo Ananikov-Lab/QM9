@@ -2,7 +2,7 @@ import pickle as pkl
 from mining_pubchem.find_reactions import *
 import random
 
-def filter_reactions(reactions, model):
+def filter_reactions(reactions, model, n):
     need_reactions = []
     label = model.labels_
     reaction_list, label = zip(*sorted(zip(reactions.mpairs_of_reacts, label), reverse=True, key=lambda a: a[1]))
@@ -12,7 +12,7 @@ def filter_reactions(reactions, model):
         if reaction_list[i].hydro_shift == 'Without hydro-shift':
             need_reactions.append(reaction_list[i])
             continue
-        if flag == 18:
+        if flag == n:
             flag = 0
             label_ -= 1
             continue
@@ -28,6 +28,8 @@ if __name__ == '__main__':
                        help='binary file of generated reactions')
     parser.add_argument('--model', dest='model', type=str, 
                        help='model`s file')
+    parser.add_argument('--number', dest='number_clust_reacts', type=int, 
+                       help='number of reacts in one cluster which need you')
     parser.add_argument('--output', dest='output_need_reactions', type=str, 
                        help='output path of need reactions for expert verification')
     parser.add_argument('--output-numbers', dest='output_shuffle_reactions', type=str, 
@@ -40,7 +42,7 @@ if __name__ == '__main__':
     with open(args.model, 'rb') as f:
         sc_model = pkl.load(f)
     
-    need_reactions_list = filter_reactions(reactions, sc_model)
+    need_reactions_list = filter_reactions(reactions, sc_model, args.number_clust_reacts)
     
     dict_w_o_shuffle = {}
     dict_w_shuffle = {}

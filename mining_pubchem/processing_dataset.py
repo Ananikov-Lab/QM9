@@ -102,8 +102,8 @@ if __name__ == '__main__':
                         help='database name (for example, "pubchem" or "zinc")')
     parser.add_argument('--n-jobs', dest='n_jobs', type=int,
                         help='Cores number for finder')
-    parser.add_argument('--output-dir', dest='path_to_sep_dir_reacts', type=str,
-                        help='dir path of separated reactions')
+    parser.add_argument('--output-dir', dest='path_to_sep_dir_cmpds', type=str,
+                        help='dir path of separated compounds')
     parser.add_argument('--output', dest='path_to_output_cmpds', type=str,
                         help='binary file path of treat compounds')
     args = parser.parse_args()
@@ -114,7 +114,7 @@ if __name__ == '__main__':
     split_cmpds = [list(sep_cmpds) for sep_cmpds in np.array_split(kilomolecules.compounds, args.n_jobs)]
 
     for i, sep_cmpds in enumerate(split_cmpds):
-        with open(f"{os.path.join(args.path_to_sep_dir_reacts, f'sep_cmpds_{i}.pkl')}", 'wb') as f:
+        with open(f"{os.path.join(args.path_to_sep_dir_cmpds, f'sep_cmpds_{i}.pkl')}", 'wb') as f:
             pkl.dump(sep_cmpds, f)
 
     with open(args.path_to_output_cmpds, 'wb') as f:

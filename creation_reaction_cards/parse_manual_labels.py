@@ -173,7 +173,7 @@ def marks_parser(output_numbers, closing):
 
 if __name__ == '__main__':
     parser = ArgumentParser()
-    parser.add_argument('--achive', dest='archive_labels', type=str,
+    parser.add_argument('--archive', dest='archive_labels', type=str,
                         help='zip of labels')
     parser.add_argument('--output', dest='output_labels', type=str,
                         help='output extract zip')
