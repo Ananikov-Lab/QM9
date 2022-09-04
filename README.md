@@ -28,6 +28,12 @@ python processing_dataset.py --ds-path ~/dsgdb9nsd.xyz.tar.bz2 --db-path ~/pubch
 sh bash_start.sh 16 treat_dataset.pkl ~/test_sep_dir/ templates.pkl
 ```
 
+4. Combining all reactions can be done using a script `mining_pubchem/reacts_concatenation.py`.
+
+```bash
+python reacts_concatenation.py --number 16 --output reactions.pkl
+```
+
 ### Processing reactions with unsupervised learning
 
 1. Transfer to vector form
