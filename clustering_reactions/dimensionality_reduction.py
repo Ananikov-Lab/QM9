@@ -4,8 +4,11 @@ from sklearn.manifold import TSNE
 import numpy as np
 import umap
 import umap.plot
-from mining_pubchem.find_reactions import *
-from mining_pubchem.processing_dataset import *
+import sys
+sys.path.append('../../QM9/mining_pubchem')
+
+from find_reactions import *
+from processing_dataset import *
 
 def generate_embeddings_dict(embeds_reag, embeds_prod, smiles_reag, smiles_prod):
     embeddings_of_smiles = {}
@@ -43,9 +46,6 @@ def reduct(method_name, embeddings, parameters={}):
         raise ValueError
     else:
         method = function[method_name]
-
-    if len(parameters.keys() - method.__dict__.keys()) > 0:
-        raise ImportError
 
     X = embeddings
 
@@ -93,7 +93,7 @@ if __name__ == '__main__':
     with open(args.reactions_path, 'rb') as f:
         reactions = pkl.load(f)
 
-    for reacts in reactions.mpairs_of_reacts:
+    for reacts in reactions:
         embedding_react = embeddings_of_smiles[Chem.MolToSmiles(reacts.reag[0].mol_structure)] \
                           - embeddings_of_smiles[Chem.MolToSmiles(reacts.prod[0].mol_structure)]
         embeddings_of_reacts.append(embedding_react)

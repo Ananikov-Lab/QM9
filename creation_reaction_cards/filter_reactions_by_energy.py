@@ -1,11 +1,13 @@
 import pickle as pkl
-from mining_pubchem.find_reactions import *
+import sys
+sys.path.append('../../QM9/mining_pubchem')
+from find_reactions import *
 import random
 
-def filter_reactions(reactions, model, n):
+def filter_reactions(reactions, model, n, database_name):
     need_reactions = []
     label = model.labels_
-    reaction_list, label = zip(*sorted(zip(reactions.mpairs_of_reacts, label), reverse=True, key=lambda a: a[1]))
+    reaction_list, label = zip(*sorted(zip(reactions, label), reverse=True, key=lambda a: a[1]))
     flag = 0
     label_ = label[0]
     for i in range(len(reaction_list)):
@@ -16,7 +18,8 @@ def filter_reactions(reactions, model, n):
             flag = 0
             label_ -= 1
             continue
-        if reaction_list[i].reac_rating == 'High probably' and label_ == label[i]:
+        if reaction_list[i].reac_rating == 'High probably' and label_ == label[
+            i] and f'{database_name}_reag+prod' in reaction_list[i].cmpd_availability:
             need_reactions.append(reaction_list[i])
             flag += 1
     return need_reactions
@@ -26,6 +29,8 @@ if __name__ == '__main__':
     parser = ArgumentParser()
     parser.add_argument('--reactions', dest='input_reactions', type=str, 
                        help='binary file of generated reactions')
+    parser.add_argument('--db-name', dest='database_name', type=str, 
+                       help='name of database which you need')
     parser.add_argument('--model', dest='model', type=str, 
                        help='model`s file')
     parser.add_argument('--number', dest='number_clust_reacts', type=int, 
@@ -42,7 +47,7 @@ if __name__ == '__main__':
     with open(args.model, 'rb') as f:
         sc_model = pkl.load(f)
     
-    need_reactions_list = filter_reactions(reactions, sc_model, args.number_clust_reacts)
+    need_reactions_list = filter_reactions(reactions, sc_model, args.number_clust_reacts, args.database_name)
     
     dict_w_o_shuffle = {}
     dict_w_shuffle = {}

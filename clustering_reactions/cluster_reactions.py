@@ -70,7 +70,7 @@ if __name__ == '__main__':
 
     for name in params.keys():
         params[name] = args_param[name]
-    print(params)
+        
     with open(args.input_embeds, 'rb') as f:
         X_r = pkl.load(f)
 

@@ -4,7 +4,9 @@ import re
 from tqdm import tqdm
 from rdkit import Chem
 from argparse import ArgumentParser
+from rdkit import RDLogger
 
+RDLogger.DisableLog('rdApp.*')
 
 def CIRconvert(ids):
     try:
@@ -37,8 +39,8 @@ def lab_alkynes(path_input, path_output):
                             cmpd = index + '\t' + smiles + '\n'
                             with open(path_output, 'at') as f_db:
                                 f_db.write(cmpd)
-                    except Exception as err:
-                        print(err)
+                    except AttributeError:
+                        pass
 
 
 if __name__ == '__main__':

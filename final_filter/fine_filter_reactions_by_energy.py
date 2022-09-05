@@ -3,7 +3,7 @@ import pandas as pd
 
 
 def filter_reactions(input_csv, n, output_csv):
-    df = pd.read_csv(input_csv, sep=';')
+    df = pd.read_csv(input_csv, sep=',')
     df.sort_values(by=['gibbs energy'], inplace=True, ascending=True)
     df_need = df.iloc[:n]
     df_need.to_csv(output_csv)

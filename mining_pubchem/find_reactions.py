@@ -236,4 +236,4 @@ if __name__ == '__main__':
     reactions.list_maker_reacts(args.path_id_reacts, kilomolecules)
     reactions.classifier()
     with open(args.path_to_output_list_reacts, 'wb') as f:
-        pkl.dump(reactions, f)
+        pkl.dump(reactions.mpairs_of_reacts, f)

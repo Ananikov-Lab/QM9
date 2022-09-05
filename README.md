@@ -31,7 +31,7 @@ sh bash_start.sh 16 treat_dataset.pkl ~/test_sep_dir/ templates.pkl
 4. Combining all reactions can be done using a script `mining_pubchem/reacts_concatenation.py`.
 
 ```bash
-python reacts_concatenation.py --number 16 --output reactions.pkl
+python reacts_concatenation.py --n-jobs 16 --output reactions.pkl
 ```
 
 ### Processing reactions with unsupervised learning
@@ -45,13 +45,13 @@ python smi2vec.py --p-vocab ~/vocab.pkl --p-trfm ~/trfm.pkl --smi ~/embeds/smile
 2. Dimensionaly reduction of vectors can be done in three ways (`PCA, t-SNE, UMAP`) by the file `clustering_reactions/dimensionality_reduction.py`:
 
 ```bash
-python dimensionality_reduction.py --emb-r ~/embeds/reags.npy --emb-p ~/embeds/prods.npy --smi-r ~/embeds/smiles_reags.txt --smi-p ~/embeds/smiles_prods.txt --reacts reactions.pkl --method 't-SNE' --output embeds_reacts.pkl
+python dimensionality_reduction.py --emb-r ~/embeds/reags.npy --emb-p ~/embeds/prods.npy --smi-r ~/embeds/smiles_reags.txt --smi-p ~/embeds/smiles_prods.txt --reacts ../mining_pubchem/reactions.pkl --method 't-SNE' --output embeds_reacts.pkl -n_components 2 -perplexity 100
 ```
 
 3. Clustering can be done in several ways (`AgglomerativeClustering, KMeans, SpectralClustering`) using the `clustering_reactions/cluster_reactions.py` script:
 
 ```bash
-python cluster_reactions.py --input embeds_reacts.pkl --method `AgglomerativeClustering` --metric `euclidean` --plot clusters.png --model qm9_model.pkl
+python cluster_reactions.py --input embeds_reacts.pkl --method 'AgglomerativeClustering' --metric 'euclidean' --plot clusters.png --model qm9_model.pkl -n_clusters 12
 ```
 
 ### For expert opinion
@@ -59,7 +59,7 @@ python cluster_reactions.py --input embeds_reacts.pkl --method `AgglomerativeClu
 1. To select a certain number of reactions from each cluster using the `creation_reaction_cards/filter_reactions_by_energy.py` script:
 
 ```bash
-python filter_reactions_by_energy.py --reactions reactions.pkl --model qm9_model.pkl --number 12 --output need_reactions.pkl --output-numbers reactions_numbers.pkl
+python filter_reactions_by_energy.py --reactions ../mining_pubchem/reactions.pkl --db-name 'CAS' --model ../clustering_reactions/qm9_model.pkl --number 18 --output need_reactions.pkl --output-numbers reactions_numbers.pkl
 ```
 
 2. Processing "reaction cards":
