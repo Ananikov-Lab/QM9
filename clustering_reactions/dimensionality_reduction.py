@@ -5,7 +5,7 @@ import numpy as np
 import umap
 import umap.plot
 from mining_pubchem.find_reactions import *
-
+from mining_pubchem.processing_dataset import *
 
 def generate_embeddings_dict(embeds_reag, embeds_prod, smiles_reag, smiles_prod):
     embeddings_of_smiles = {}

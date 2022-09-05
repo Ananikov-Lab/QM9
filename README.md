@@ -36,12 +36,16 @@ python reacts_concatenation.py --number 16 --output reactions.pkl
 
 ### Processing reactions with unsupervised learning
 
-1. Transfer to vector form
+1. Substances are converted into vector form using a script `clustering_reactions/smi2vec.py`.
+
+```bash
+python smi2vec.py --p-vocab ~/vocab.pkl --p-trfm ~/trfm.pkl --smi ~/embeds/smiles_reags.txt --output ~/embeds/reags.npy & python smi2vec.py --p-vocab ~/vocab.pkl --p-trfm ~/trfm.pkl --smi ~/embeds/smiles_prods.txt --output ~/embeds/prods.npy
+```
 
 2. Dimensionaly reduction of vectors can be done in three ways (`PCA, t-SNE, UMAP`) by the file `clustering_reactions/dimensionality_reduction.py`:
 
 ```bash
-python dimensionality_reduction.py --emb-r ~/embeds/reags.npy --emb-p ~/embeds/prods.npy --smi-r ~/embeds/smiles_reags.pkl --smi-p ~/embeds/smiles_prods.pkl --reacts reactions.pkl --method 't-SNE' --output embeds_reacts.pkl
+python dimensionality_reduction.py --emb-r ~/embeds/reags.npy --emb-p ~/embeds/prods.npy --smi-r ~/embeds/smiles_reags.txt --smi-p ~/embeds/smiles_prods.txt --reacts reactions.pkl --method 't-SNE' --output embeds_reacts.pkl
 ```
 
 3. Clustering can be done in several ways (`AgglomerativeClustering, KMeans, SpectralClustering`) using the `clustering_reactions/cluster_reactions.py` script:
