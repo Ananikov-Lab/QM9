@@ -1,0 +1,14 @@
+matplotlib==3.5.1
+numpy==1.22.3
+openbabel==3.1.1.1
+openbabel_wheel==3.1.1.5
+opencv_python==4.6.0.66
+pandas==1.4.2
+pybel==0.15.5
+rdkit==2022.3.5
+scikit_learn==1.1.2
+torch==1.11.0
+tqdm==4.64.0
+umap==0.1.1
+umap_learn==0.5.3
+utils==1.0.1
