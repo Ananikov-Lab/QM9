@@ -70,7 +70,9 @@ if __name__ == '__main__':
             line = line.strip('\n')
             smi = line
             smiles.append(smi)
-            
+    
+    smiles = [process_smiles(smile) for smile in smiles]
+    
     xid, _ = get_array(smiles)
     X = trfm.encode(torch.t(xid))
     
