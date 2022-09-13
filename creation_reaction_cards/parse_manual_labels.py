@@ -4,6 +4,7 @@ import os
 import zipfile
 import pandas as pd
 import numpy as np
+import pickle as pkl
 
 
 def extract_zip(path_to_zip, output_zip):
@@ -183,19 +184,35 @@ if __name__ == '__main__':
                         help='path of csv output')
     args = parser.parse_args()
 
-    extract_zip(args.acrhive_labels, args.output_labels)
-
+    extract_zip(args.archive_labels, args.output_labels)
+    
+    filenames = [filename for filename in os.listdir(args.output_labels)]
+    
+    for filename in filenames:
+        i = filename.split('.')[-2][-2:]
+        os.rename(os.path.join(args.output_labels, filename), os.path.join(args.output_labels, f'reactions-{i}.jpg'))
+        
     i = 4
+    with open(args.output_numbers, 'rb') as f:
+        output_numbers = pkl.load(f)
+    
     kernel = np.ones((7, 7), np.uint8)
-    img = cv2.imread(f'{args.output_labels}/reactions-01.jpg', cv2.COLOR_BGR2HSV)
+    img = cv2.imread(f"{os.path.join(args.output_labels, 'reactions-01.jpg')}", cv2.COLOR_BGR2HSV)
     closing = cv2.morphologyEx(img[:, :, 0], cv2.MORPH_CLOSE, kernel)
+    
+    for x in range(img.shape[1]):
+        for y in range(img.shape[0]):
+            color = closing[y, x]
+            if color < 240:
+                closing[y, x] = 0
+                    
     df = pd.DataFrame(marks_parser(output_numbers[:4], closing))
 
     for ind in range(2, len(os.listdir(args.output_labels)) + 1):
         print(ind)
         if ind < 10:
             ind = '0' + str(ind)
-        img = cv2.imread(f'{args.output_labels}/reactions-{ind}.jpg', cv2.COLOR_BGR2HSV)
+        img = cv2.imread(f"{os.path.join(args.output_labels, f'reactions-{ind}.jpg')}", cv2.COLOR_BGR2HSV)
         closing = cv2.morphologyEx(img[:, :, 0], cv2.MORPH_CLOSE, kernel)
         for x in range(img.shape[1]):
             for y in range(img.shape[0]):
@@ -203,9 +220,10 @@ if __name__ == '__main__':
                 if color < 240:
                     closing[y, x] = 0
 
-        output_numbers_ = args.output_numbers[i:i + 4]
-
-        df = df.append(pd.DataFrame(marks_parser(args.output_numbers, closing)), sort=False)
+        output_numbers_ = output_numbers[i:i + 4]
+        df1 = pd.DataFrame(marks_parser(output_numbers_, closing))
+        df = pd.concat([df, df1])
         i += 4
-
+        
+    df.reset_index(inplace=True, drop=True)
     df.to_csv(args.csv_output)

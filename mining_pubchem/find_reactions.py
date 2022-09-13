@@ -105,7 +105,7 @@ class ReactionSearcher:
                                 except KekulizeException:
                                     pass
 
-    def list_maker_reacts(self, path, dataset):
+    def list_maker_reacts(self, path, dataset, db_name):
         list_all_reacts = []
         with open(path, 'rt') as f:
             for line in f:
@@ -121,8 +121,7 @@ class ReactionSearcher:
                                     reac_energy,
                                     react_info[3]  # Info of hydro-shift
                                     )
-                reaction.availability('pubchem')
-                reaction.availability('CAS')
+                reaction.availability(db_name)
                 list_all_reacts.append(reaction)
 
         sorts_of_reacts = sorted(list_all_reacts,
@@ -211,6 +210,8 @@ if __name__ == '__main__':
                         help='dataset path of compounds for generation reactions')
     parser.add_argument('--carb', dest='carb_cnt', type=int,
                         default=7, help='max count of carbons in cmpd')
+    parser.add_argument('--db-name', dest='database_name', type=str,
+                        help='database name (for example, "pubchem" or "zinc")')
     parser.add_argument('--index', dest='alk_index', type=int,
                         default=3, help='index of desired alkyne in dataset')
     parser.add_argument('--ls-path', dest='list_smarts_path', type=str,
@@ -233,7 +234,7 @@ if __name__ == '__main__':
     reactions = ReactionSearcher(kilomolecules)
     reactions.generate_reactions(kilomolecules, list_smarts, args.path_id_reacts, args.carb_cnt, args.alk_index,
                                  sep_cmpds)
-    reactions.list_maker_reacts(args.path_id_reacts, kilomolecules)
+    reactions.list_maker_reacts(args.path_id_reacts, kilomolecules, args.database_name)
     reactions.classifier()
     with open(args.path_to_output_list_reacts, 'wb') as f:
         pkl.dump(reactions.mpairs_of_reacts, f)

@@ -1,5 +1,5 @@
 from argparse import ArgumentParser
-
+import pickle as pkl
 from tqdm import tqdm
 from openbabel import pybel
 from pybel import *
@@ -33,14 +33,12 @@ def getreversed(smiles):
 
 
 def parse_file_rxn(path):
-    list_rxns = []
-    with open(path, 'rt') as f:
-        lines = f.readlines()
-        for line in lines:
+    with open(path, 'rb') as f:
+        list_rxns = pkl.load(f)
+        for line in list_rxns:
             line = line[:-1]
             line = line.replace(']1', ']5')
             line = line.replace(']2', ']6')
-            list_rxns.append(line)
 
     return list_rxns
 

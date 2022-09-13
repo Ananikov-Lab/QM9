@@ -26,7 +26,7 @@ def clustering(method_name, X_r, parameters={}):
 def metric(model, X_r, metric_='euclidean'):
     labels = model.labels_
     metric_value = metrics.silhouette_score(X_r, labels, metric=metric_)
-    print(metric_value)
+    print('Your metric:', metric_value)
 
     return metric_value
 
