@@ -1,0 +1,31 @@
+version: "3"
+
+services:
+  streamlit_molplotly:
+    build: .
+    restart: always
+    container_name: streamlit_molplotly
+    ports:
+      - "5010:5010"
+    depends_on:
+      - dash_app
+    environment:
+      - STREAMLIT_SERVER_ENABLECORS=false
+      - STREAMLIT_SERVER_ENABLEXSRFPROTECTION=false
+    networks:
+      - app_network
+
+  dash_app:
+    build: .
+    restart: always
+    container_name: dash_app
+    command: ["python", "dash_app.py"]
+    ports:
+      - "5011:5011"
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+

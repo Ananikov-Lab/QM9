@@ -4,11 +4,12 @@ import pandas as pd
 import pickle
 import os
 
-with open('dict_variables_qm9_1310.pkl', "rb") as f:
+with open('supporting_files/dict_variables_qm9_1310.pkl', "rb") as f:
     data_dict = pickle.load(f)
 
 # Создаем DataFrame из загруженного словаря
 df_final = data_dict
+
 
 # Определяем x и y как компоненты t-SNE
 x = df_final["visual_tSNE_1024"][:, 0]
@@ -40,6 +41,5 @@ fig_scatter = mp.add_molecules(fig=fig_scatter,
                                smiles_col=smiles_cols,
                                show_coords=False,
                                fontfamily='Roboto')
-
 if __name__ == "__main__":
-    fig_scatter.run_server(debug=True, host="0.0.0.0", port=8700)
+    fig_scatter.run_server(debug=True, host="0.0.0.0", port=5011)

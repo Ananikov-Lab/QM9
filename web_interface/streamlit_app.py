@@ -3,6 +3,20 @@ import streamlit as st
 # Set white theme for Streamlit
 st.set_page_config(page_title="Reaction Viewer")
 
+st.markdown(
+    """
+    <style>
+        iframe {
+            display: block;
+            border: none;
+            width: 100%;
+            height: 100vh;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # Custom CSS styles for modernized navigation menu
 st.markdown(
     """
@@ -125,4 +139,10 @@ if menu == "Home":
     
 elif menu == "ReactionViewer":
     st.title("Reaction Viewer")
-    st.components.v1.iframe("http://localhost:8700", width=800, height=1000)
+    st.markdown(
+    """
+    <iframe src="http://mc.zioc.su:8511" width="100%" height="1000px" frameborder="0"></iframe>
+    """,
+    unsafe_allow_html=True
+)
+
