@@ -1,7 +1,89 @@
 import streamlit as st
+import pandas as pd
+import streamlit.components.v1 as components
+import base64
 
-# Set white theme for Streamlit
-st.set_page_config(page_title="Reaction Viewer")
+df_reactions = pd.read_csv('supporting_files/df_reactions.csv')
+
+base_url = "static/dataset_png/"
+df_reactions["Image"] = base_url + df_reactions["Image"].astype(str)
+
+html_table = """
+<html>
+  <head>
+    <!-- Подключаем CSS и JS DataTables с CDN -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.1/css/jquery.dataTables.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.js"></script>
+    <style>
+      /* Общая стилистика */
+      body {{
+        background-color: white;
+        color: black;
+        font-family: 'Roboto', sans-serif;
+        margin: 20px;
+      }}
+      
+      /* Стилизация таблицы */
+      table {{
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }}
+      
+      th, td {{
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+      }}
+      
+      th {{
+        background-color: #f8f9fa;
+        text-transform: uppercase;
+        font-weight: bold;
+      }}
+      
+      tr:hover {{
+        background-color: #f1f1f1;
+      }}
+      
+      img {{
+        max-width: 150px;
+        height: auto;
+        border-radius: 8px;
+      }}
+      
+      /* Стилизация элементов DataTables */
+      .dataTables_wrapper .dataTables_filter input {{
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          padding: 8px;
+      }}
+      
+      .dataTables_wrapper .dataTables_length select {{
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          padding: 8px;
+      }}
+    </style>
+  </head>
+  <body>
+    <table id="myTable">
+      <thead>
+        <tr>
+          <th>Reaction Image</th>
+          <th>Energy (kcal/mol)</th>
+        </tr>
+      </thead>
+      <tbody>
+"""
+
+def get_image_base64(image_path):
+    with open(image_path, "rb") as img_file:
+        b64_string = base64.b64encode(img_file.read()).decode("utf-8")
+    return f"data:image/png;base64,{b64_string}"
+
+st.set_page_config(page_title="Reaction Viewer", layout="wide")
 
 st.markdown(
     """
@@ -17,7 +99,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Custom CSS styles for modernized navigation menu
+
 st.markdown(
     """
     <style>
@@ -93,7 +175,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Sidebar navigation with styled menu
+
 st.sidebar.title("Navigation")
 st.sidebar.markdown(
     """
@@ -105,7 +187,7 @@ st.sidebar.markdown(
     unsafe_allow_html=True
 )
 
-# Page selection logic
+
 menu = st.query_params.get("nav", "Home")
 
 if menu == "Home":
@@ -144,5 +226,48 @@ elif menu == "ReactionViewer":
     <iframe src="http://mc.zioc.su:8511" width="100%" height="1000px" frameborder="0"></iframe>
     """,
     unsafe_allow_html=True
-)
+    )
+    
+    st.write("### Reaction Table")
 
+    rows_per_page = 100
+    total_rows = len(df_reactions)
+    total_pages = (total_rows - 1) // rows_per_page + 1
+
+
+    page_number = st.number_input("Page Number", 
+                                  min_value=1, 
+                                  max_value=total_pages, 
+                                  value=1, 
+                                  step=1)
+
+
+    start_idx = (page_number - 1) * rows_per_page
+    end_idx = start_idx + rows_per_page
+
+    df_page = df_reactions.iloc[start_idx:end_idx]
+
+
+    for _, row in df_page.iterrows():
+        image_data = get_image_base64(row['Image'])
+        html_table += "<tr>"
+        html_table += f"<td><img src='{image_data}' style='max-width:450px; height:auto;'/></td>"
+        html_table += f"<td>{round(row['Energy (kcal/mol)'], 2)}</td>"
+        html_table += f""
+        html_table += "</tr>"
+
+    html_table += """
+        </tbody>
+        </table>
+        <script>
+        $(document).ready(function () {
+            $('#myTable').DataTable({
+                "order": []  // начальное отсутствие сортировки
+            });
+        });
+        </script>
+    </body>
+    </html>
+    """
+
+    components.html(html_table, height=600, scrolling=True)

@@ -130,3 +130,6 @@ dmypy.json
 
 # Binary files
 *.pkl
+*.png
+*.csv
+

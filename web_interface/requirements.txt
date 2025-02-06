@@ -5,4 +5,4 @@ plotly
 molplotly
 pandas
 pickle-mixin
-
+streamlit-aggrid
