@@ -24,7 +24,7 @@ df_vis = pd.DataFrame({
 fig_scatter = px.scatter(df_vis,
                          x="x",
                          y="y",
-                         title="Reaction QM9",
+                         title="",
                          width=800,
                          height=800,
                          )

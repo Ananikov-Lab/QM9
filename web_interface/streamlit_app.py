@@ -4,9 +4,13 @@ import streamlit.components.v1 as components
 import base64
 
 df_reactions = pd.read_csv('supporting_files/df_reactions.csv')
-
 base_url = "static/dataset_png/"
 df_reactions["Image"] = base_url + df_reactions["Image"].astype(str)
+
+def get_image_base64(image_path):
+    with open(image_path, "rb") as img_file:
+        b64_string = base64.b64encode(img_file.read()).decode("utf-8")
+    return f"data:image/png;base64,{b64_string}"
 
 html_table = """
 <html>
@@ -16,72 +20,122 @@ html_table = """
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.1/js/jquery.dataTables.js"></script>
     <style>
-      /* Общая стилистика */
-      body {{
+    [data-testid="stThemeSwitcher"] {
+        display: none !important;
+    }
+
+    html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
         background-color: white;
-        color: black;
         font-family: 'Roboto', sans-serif;
-        margin: 20px;
-      }}
-      
-      /* Стилизация таблицы */
-      table {{
+        color: black;
+    }
+
+    .table-container {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box;
+    }
+
+    table {
         width: 100%;
         border-collapse: collapse;
         margin: 20px 0;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      }}
-      
-      th, td {{
-        padding: 12px 15px;
-        border: 1px solid #ddd;
-      }}
-      
-      th {{
+        table-layout: auto;
+    }
+
+    th, td {
+        padding: 0.75rem;
+        border-top: 1px solid #dee2e6;
+    }
+
+    th {
         background-color: #f8f9fa;
-        text-transform: uppercase;
-        font-weight: bold;
-      }}
-      
-      tr:hover {{
+        color: #212529;
+        text-transform: none;
+        font-weight: 500;
+        text-align: left;
+        padding: 0.75rem;
+        vertical-align: bottom;
+        border-bottom: 2px solid #dee2e6;
+    }
+
+    tr:hover {
         background-color: #f1f1f1;
-      }}
-      
-      img {{
+        transition: background-color 0.3s ease;
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #fafafa;
+    }
+
+    img {
         max-width: 150px;
         height: auto;
         border-radius: 8px;
-      }}
-      
-      /* Стилизация элементов DataTables */
-      .dataTables_wrapper .dataTables_filter input {{
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          padding: 8px;
-      }}
-      
-      .dataTables_wrapper .dataTables_length select {{
-          border: 1px solid #ddd;
-          border-radius: 8px;
-          padding: 8px;
-      }}
+    }
+
+    .dataTables_wrapper .dataTables_filter input {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 8px;
+    }
+
+    .dataTables_wrapper .dataTables_length select {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 8px;
+    }
+
+    .block-container {
+        padding-top: 0rem !important;
+        margin-top: 0rem !important;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        margin-top: 0.2rem !important;
+    }
+    .table {
+        width: 100%;
+        margin-bottom: 1rem;
+        color: #212529;
+        border-collapse: separate;
+    }
+    .table thead th {
+        vertical-align: bottom;
+        border-bottom: 2px solid #dee2e6;
+    }
+    .table-hover tbody tr:hover {
+        background-color: #f1f1f1;
+    }
+    .dataTables_wrapper .dataTables_filter label {
+        font-size: 0.85rem;
+        color: #6c757d;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .dataTables_wrapper .dataTables_filter label input {
+        border-radius: 4px;
+        border: 1px solid #ced4da;
+        padding: 0.25rem 0.5rem;
+    }
     </style>
   </head>
   <body>
-    <table id="myTable">
-      <thead>
-        <tr>
-          <th>Reaction Image</th>
-          <th>Energy (kcal/mol)</th>
-        </tr>
-      </thead>
-      <tbody>
+    <div class="table-container">
+        <table id="myTable" class="table table-hover">
+        <thead>
+            <tr>
+            <th scope="col">Reaction Image</th>
+            <th scope="col">Energy (kcal/mol)</th>
+            </tr>
+        </thead>
+        <tbody>
 """
-
-def get_image_base64(image_path):
-    with open(image_path, "rb") as img_file:
-        b64_string = base64.b64encode(img_file.read()).decode("utf-8")
-    return f"data:image/png;base64,{b64_string}"
 
 st.set_page_config(page_title="Reaction Viewer", layout="wide")
 
@@ -98,7 +152,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
 
 st.markdown(
     """
@@ -126,8 +179,11 @@ st.markdown(
         padding: 10px;
     }
     .block-container {
-        max-width: 900px;
         margin: auto;
+        padding-bottom: 0 !important;
+    }
+    .dataTables_wrapper .row {
+        margin-bottom: 0 !important;
     }
     .sidebar .sidebar-content {
         background-color: #f8f9fa;
@@ -170,11 +226,32 @@ st.markdown(
     h3 {
         text-align: center;
     }
+    [data-testid="stAppViewContainer"],
+    [data-testid="stSidebar"] {
+        background-color: white !important;
+    }
+    .block-container {
+        padding-top: 0rem !important;
+        margin-top: 0rem !important;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        margin-top: 0.2rem !important;
+    }
+    .pagination-input input {
+         border-radius: 4px !important;
+         border: 1px solid #ced4da !important;
+         padding: 0.375rem 0.75rem !important;
+         text-align: center !important;
+         font-size: 1rem !important;
+         width: 80px !important;
+         margin: auto;
+         display: block;
+    }
     </style>
     """,
     unsafe_allow_html=True
 )
-
 
 st.sidebar.title("Navigation")
 st.sidebar.markdown(
@@ -182,11 +259,11 @@ st.sidebar.markdown(
     <ul class="nav-menu">
         <li><a href="/" target="_self">Home</a></li>
         <li><a href="/?nav=ReactionViewer" target="_self">Reaction Viewer</a></li>
+        <li><a href="/?nav=ReactionTable" target="_self">Reaction Table</a></li>
     </ul>
     """,
     unsafe_allow_html=True
 )
-
 
 menu = st.query_params.get("nav", "Home")
 
@@ -222,47 +299,138 @@ if menu == "Home":
 elif menu == "ReactionViewer":
     st.title("Reaction Viewer")
     st.markdown(
-    """
-    <iframe src="http://mc.zioc.su:8511" width="100%" height="1000px" frameborder="0"></iframe>
-    """,
-    unsafe_allow_html=True
+        """
+        <style>
+          html, body { height: 100%; margin: 0; padding: 0; }
+          .center-container { display: flex; justify-content: center; align-items: center; height: 100%; }
+        </style>
+        <div class="center-container">
+          <iframe src="http://mc.zioc.su:8511" style="width:800px; height:800px; border:none;"></iframe>
+        </div>
+        """,
+        unsafe_allow_html=True
     )
-    
-    st.write("### Reaction Table")
 
-    rows_per_page = 100
+elif menu == "ReactionTable":
+    st.title("Reaction Table")
+
+    rows_per_page = 10
     total_rows = len(df_reactions)
     total_pages = (total_rows - 1) // rows_per_page + 1
 
+    params = st.query_params
+    page_param = params.get("page", None)
+    if page_param is None:
+        page_number = 1
+    elif isinstance(page_param, list):
+        try:
+            page_number = int(page_param[0])
+        except ValueError:
+            page_number = 1
+    else:
+        try:
+            page_number = int(page_param)
+        except ValueError:
+            page_number = 1
 
-    page_number = st.number_input("Page Number", 
-                                  min_value=1, 
-                                  max_value=total_pages, 
-                                  value=1, 
-                                  step=1)
+    prev_disabled = "disabled" if page_number <= 1 else ""
+    next_disabled = "disabled" if page_number >= total_pages else ""
+    prev_page = page_number - 1 if page_number > 1 else 1
+    next_page = page_number + 1 if page_number < total_pages else total_pages
 
+    pagination_links = f'<li class="page-item {"active" if page_number==1 else ""}"><a class="page-link" href="?nav=ReactionTable&page=1" target="_self">1</a></li>'
 
+    if page_number > 3:
+        pagination_links += '<li class="page-item disabled"><a class="page-link" href="#">...</a></li>'
+
+    for p in [page_number - 1, page_number, page_number + 1]:
+        if p > 1 and p < total_pages:
+            if p == page_number:
+                pagination_links += f'<li class="page-item active"><a class="page-link" href="?nav=ReactionTable&page={p}" target="_self">{p}</a></li>'
+            else:
+                pagination_links += f'<li class="page-item"><a class="page-link" href="?nav=ReactionTable&page={p}" target="_self">{p}</a></li>'
+
+    if page_number < total_pages - 2:
+        pagination_links += '<li class="page-item disabled"><a class="page-link" href="#">...</a></li>'
+
+    if total_pages > 1:
+        pagination_links += f'<li class="page-item {"active" if page_number==total_pages else ""}"><a class="page-link" href="?nav=ReactionTable&page={total_pages}" target="_self">{total_pages}</a></li>'
+
+    pagination_html = f"""
+    <style>
+    .pagination-container {{
+        margin-bottom: 20px;
+    }}
+    .pagination {{
+        display: flex;
+        padding-left: 0;
+        list-style: none;
+        border-radius: 0.25rem;
+        margin: 0;
+    }}
+    .pagination li {{
+        margin: 0 2px;
+    }}
+    .pagination li a {{
+        background-color: #fff;
+        color: #000;
+        border: 1px solid #000;
+        border-radius: 0.25rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.85rem;
+        text-decoration: none;
+        transition: background-color 0.2s ease, color 0.2s ease;
+    }}
+    .pagination li a:hover {{
+        background-color: #000;
+        color: #fff;
+    }}
+    .pagination li.active a {{
+        background-color: #000;
+        color: #fff;
+        border-color: #000;
+    }}
+    .pagination li.disabled a {{
+        color: #6c757d;
+        pointer-events: none;
+        background-color: #fff;
+        border-color: #dee2e6;
+    }}
+    </style>
+    <div class="pagination-container">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.85rem; font-weight: 600;">Reaction Pages</span>
+        <ul class="pagination justify-content-end">
+          {pagination_links}
+        </ul>
+      </div>
+    </div>
+    """
+    st.markdown(pagination_html, unsafe_allow_html=True)
+    
     start_idx = (page_number - 1) * rows_per_page
     end_idx = start_idx + rows_per_page
-
     df_page = df_reactions.iloc[start_idx:end_idx]
 
-
+    table_body = ""
     for _, row in df_page.iterrows():
         image_data = get_image_base64(row['Image'])
-        html_table += "<tr>"
-        html_table += f"<td><img src='{image_data}' style='max-width:450px; height:auto;'/></td>"
-        html_table += f"<td>{round(row['Energy (kcal/mol)'], 2)}</td>"
-        html_table += f""
-        html_table += "</tr>"
+        table_body += "<tr>"
+        table_body += f"<td><img src='{image_data}' style='max-width:450px; height:auto;'/></td>"
+        table_body += f"<td>{round(row['Energy (kcal/mol)'], 2)}</td>"
+        table_body += "</tr>"
 
-    html_table += """
+    final_html = html_table + table_body + """
         </tbody>
         </table>
+        </div>
         <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
             $('#myTable').DataTable({
-                "order": []  // начальное отсутствие сортировки
+               "order": [],
+               "paging": false,
+               "scrollY": "calc(100vh - 250px)",
+               "scrollCollapse": true
             });
         });
         </script>
@@ -270,4 +438,4 @@ elif menu == "ReactionViewer":
     </html>
     """
 
-    components.html(html_table, height=600, scrolling=True)
+    components.html(final_html, height=900, scrolling=True)

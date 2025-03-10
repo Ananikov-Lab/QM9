@@ -5,6 +5,8 @@ services:
     build: .
     restart: always
     container_name: streamlit_molplotly
+    volumes:
+      - .:/app
     ports:
       - "5010:5010"
     depends_on:
@@ -20,6 +22,8 @@ services:
     restart: always
     container_name: dash_app
     command: ["python", "dash_app.py"]
+    volumes:
+      - .:/app
     ports:
       - "5011:5011"
     networks:
