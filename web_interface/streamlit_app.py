@@ -3,9 +3,10 @@ import pandas as pd
 import streamlit.components.v1 as components
 import base64
 
-df_reactions = pd.read_csv('supporting_files/df_reactions.csv')
+df_reactions = pd.read_csv('supporting_files/df_reactions_multi.csv', header=[0,1])
+
 base_url = "static/dataset_png/"
-df_reactions["Image"] = base_url + df_reactions["Image"].astype(str)
+df_reactions[('Reaction', 'Image')] = base_url + df_reactions[('Reaction', 'Image')].astype(str)
 
 def get_image_base64(image_path):
     with open(image_path, "rb") as img_file:
@@ -63,6 +64,11 @@ html_table = """
         border-bottom: 2px solid #dee2e6;
     }
 
+    td {
+        border-left: 1px solid #dee2e6 !important;
+        border-right: 1px solid #dee2e6 !important;
+    }
+
     tr:hover {
         background-color: #f1f1f1;
         transition: background-color 0.3s ease;
@@ -107,6 +113,8 @@ html_table = """
     .table thead th {
         vertical-align: bottom;
         border-bottom: 2px solid #dee2e6;
+        font-size: 16px !important;
+        padding: 4px !important;
     }
     .table-hover tbody tr:hover {
         background-color: #f1f1f1;
@@ -123,19 +131,56 @@ html_table = """
         border: 1px solid #ced4da;
         padding: 0.25rem 0.5rem;
     }
+
+    .dataTables_scrollHeadInner, .dataTables_scrollBody table {
+        width: 100% !important;
+    }
+
     </style>
   </head>
   <body>
     <div class="table-container">
         <table id="myTable" class="table table-hover">
-        <thead>
-            <tr>
-            <th scope="col">Reaction Image</th>
-            <th scope="col">Energy (kcal/mol)</th>
-            </tr>
-        </thead>
-        <tbody>
+
 """
+
+html_table += "<thead>"
+columns = df_reactions.columns
+n_levels = columns.nlevels
+
+for level in range(n_levels):
+    html_table += "<tr>"
+    col_idx = 0
+    while col_idx < len(columns):
+        current_col = columns[col_idx][level]
+        if 'Unnamed' in current_col:
+            current_col = ''
+
+        colspan = 1
+        for next_col in range(col_idx + 1, len(columns)):
+            if columns[next_col][level] == columns[col_idx][level]:
+                colspan += 1
+            else:
+                break
+
+        rowspan = 1
+        if colspan == 1:
+            rowspan = 1
+            for sub_level in range(level + 1, n_levels):
+                if 'Unnamed' in columns[col_idx][sub_level]:
+                    rowspan += 1
+                else:
+                    break
+
+        rowspan_html = f" rowspan='{rowspan}'" if rowspan > 1 else ""
+        colspan_html = f" colspan='{colspan}'" if colspan > 1 else ""
+
+        html_table += f"<th scope='col'{rowspan_html}{colspan_html}>{current_col}</th>"
+        col_idx += colspan
+    html_table += "</tr>"
+html_table += "</thead>"
+
+
 
 st.set_page_config(page_title="Reaction Viewer", layout="wide")
 
@@ -271,27 +316,34 @@ if menu == "Home":
     st.title("Welcome to Reaction Viewer")
     st.markdown(
         """
-        **The search for new chemical transformations is a key goal in modern chemistry.**
-        
-        The scope of available reactions defines the accessible chemical space and therefore can limit development in various molecule-dependent areas, such as drug discovery, medicine, agriculture, materials science, and life sciences, among others.
-        
-        This tool provides an interactive way to explore molecular transformations visually, helping in rapid assessment of chemical reactions and their thermodynamic feasibility.
-        
-        <h3>Authors:</h3>
-        <p><strong>Nikita I. Kolomoets<sup>†,a</sup>, Daniil A. Boiko<sup>†,a</sup>, Leonid V. Romashov<sup>a</sup>, 
-        Kirill S. Kozlov<sup>a</sup>, Evgeniy G. Gordeev<sup>a</sup>, Alexey S. Galushko<sup>a</sup>, 
-        Valentine P. Ananikov<sup>a</sup>*</strong></p>
+        <p>The search for new chemical transformations is a key goal in modern chemistry.</p>
+        <p>The scope of available reactions defines the accessible chemical space and therefore can limit development in various molecule-dependent areas, such as drug discovery, medicine, agriculture, materials science, and life sciences, among others.</p>
+
+        <p>This tool provides an interactive way to explore molecular transformations visually, helping in the rapid assessment of chemical reactions and their thermodynamic feasibility.</p>
+
+        <h2>🔎 Looking for a specific reaction?</h2>
+        <p>You can <strong>search for your reaction</strong> using the <strong>reaction space exploration tool</strong> and the <strong>reaction table</strong>.</p>
+        <ul>
+            <li>Use the <strong>search function</strong> to quickly locate reactions of interest.</li>
+            <li>Browse through the <strong>reaction table</strong> to explore different transformations and their thermodynamic properties.</li>
+            <li>Navigate to the <strong>"Reaction Viewer"</strong> section to analyze reactions interactively.</li>
+        </ul>
+
+        <h2>👩‍🔬 Authors</h2>
+        <p><strong>Nikita I. Kolomoets<sup> †,a</sup>, Daniil A. Boiko<sup> †,a</sup>, Leonid V. Romashov<sup> a</sup>, Kirill S. Kozlov<sup> a</sup>, Evgeniy G. Gordeev<sup> a</sup>, Alexey S. Galushko<sup> a</sup>, Valentine P. Ananikov<sup> *,a</sup></strong></p>
 
         <p><sup>a</sup> Zelinsky Institute of Organic Chemistry, Russian Academy of Sciences, Leninsky Prospekt 47, Moscow, 119991, Russia</p>
+
         <p><sup>†</sup> These authors contributed equally</p>
-        <p><sup>*</sup> Corresponding author: val@ioc.ac.ru</p>
-        
-        <h3>How to use:</h3>
+        <p><sup>*</sup> Corresponding author: <a href="mailto:val@ioc.ac.ru">val@ioc.ac.ru</a></p>
+
+        <h2>📌 How to use</h2>
         <ul>
-            <li>Navigate to the "Reaction Viewer" section.</li>
-            <li>Select molecular display parameters.</li>
-            <li>Analyze chemical reactions interactively.</li>
+            <li>Navigate to the <strong>"Reaction Viewer"</strong> section.</li>
+            <li>Select <strong>molecular display parameters</strong>.</li>
+            <li>Search and analyze <strong>chemical reactions interactively</strong>.</li>
         </ul>
+
         """,
         unsafe_allow_html=True
     )
@@ -412,26 +464,42 @@ elif menu == "ReactionTable":
     end_idx = start_idx + rows_per_page
     df_page = df_reactions.iloc[start_idx:end_idx]
 
-    table_body = ""
+    table_body = "<tbody>"
     for _, row in df_page.iterrows():
-        image_data = get_image_base64(row['Image'])
         table_body += "<tr>"
-        table_body += f"<td><img src='{image_data}' style='max-width:450px; height:auto;'/></td>"
-        table_body += f"<td>{round(row['Energy (kcal/mol)'], 2)}</td>"
+        for col in df_reactions.columns:
+            if col == ('Reaction', 'Image'):
+                img_src = get_image_base64(row[col])
+                table_body += f"<td><img src='{img_src}' style='max-width:200px; height:auto;'/></td>"
+            elif col == ('Reaction', 'Energy (kcal/mol)'):
+                table_body += f"<td>{round(row[col], 2)}</td>"
+            else:
+                cell_value = row[col] if pd.notna(row[col]) else ""
+                table_body += f"<td>{cell_value}</td>"
         table_body += "</tr>"
+    table_body += "</tbody>"
 
     final_html = html_table + table_body + """
-        </tbody>
         </table>
         </div>
         <script>
         $(document).ready(function() {
-            $('#myTable').DataTable({
-               "order": [],
-               "paging": false,
-               "scrollY": "calc(100vh - 250px)",
-               "scrollCollapse": true
+        var table = $('#myTable').DataTable({
+            "order": [],
+            "paging": false,
+            "scrollY": "calc(100vh - 250px)",
+            "scrollCollapse": true,
+            "searching": false
             });
+
+            function fixTableWidth() {
+                var head = $('.dataTables_scrollHeadInner table');
+                var body = $('.dataTables_scrollBody table');
+                head.css('width', body.width() + 'px');
+            }
+
+            fixTableWidth();
+            $(window).resize(fixTableWidth);
         });
         </script>
     </body>
