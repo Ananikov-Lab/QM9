@@ -2,8 +2,9 @@ import streamlit as st
 import pandas as pd
 import streamlit.components.v1 as components
 import base64
+import datetime
 
-df_reactions = pd.read_csv('supporting_files/df_reactions_multi.csv', header=[0,1])
+df_reactions = pd.read_csv('supporting_files/df_reactions_multi_cas_cleaned.csv', header=[0,1])
 
 base_url = "static/dataset_png/"
 df_reactions[('Reaction', 'Image')] = base_url + df_reactions[('Reaction', 'Image')].astype(str)
@@ -366,7 +367,7 @@ elif menu == "ReactionViewer":
 elif menu == "ReactionTable":
     st.title("Reaction Table")
 
-    rows_per_page = 10
+    rows_per_page = 50
     total_rows = len(df_reactions)
     total_pages = (total_rows - 1) // rows_per_page + 1
 
@@ -507,3 +508,38 @@ elif menu == "ReactionTable":
     """
 
     components.html(final_html, height=900, scrolling=True)
+
+current_year = datetime.datetime.now().year
+
+footer_html = f"""
+<style>
+.footer {{
+    position: fixed;
+    right: 20px;
+    bottom: 10px;
+    z-index: 100;
+    font-size: 14px;
+    color: #555;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 6px 12px;
+    border-radius: 10px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Segoe UI', sans-serif;
+}}
+
+.footer img {{
+    height: 24px;
+    vertical-align: middle;
+}}
+</style>
+
+<div class="footer">
+    <img src={get_image_base64("static/logofot.png")}>
+    <span>&copy; {current_year} Copyright Ananikov Laboratory</span>
+</div>
+"""
+
+st.markdown(footer_html, unsafe_allow_html=True)
