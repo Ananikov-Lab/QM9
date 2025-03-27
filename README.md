@@ -13,7 +13,7 @@ optimized and experimentally verified, which led to the discovery of X novel rea
 1. Generate cycloaddition reaction templates using the `mining_pubchem/generate_templates.py` script.
 
 ```bash
-cd QM9/mining_pubchem
+cd mining_pubchem
 python generate_templates.py --output ../../working_files/templates.pkl
 ```
 
@@ -22,6 +22,7 @@ python generate_templates.py --output ../../working_files/templates.pkl
 ```bash
 python processing_dataset.py --ds-path ../../working_files/dsgdb9nsd.xyz.tar.bz2 --db-path ../../working_files/cas --db-name 'CAS' --n-jobs 16 --output-dir ../../working_files/test_sep_dir/ --output ../../working_files/proc_dataset.pkl
 ```
+
 3. In the previous step, we used `n_jobs=16` processes to parallelize our program. Now we run all 16 separate files through the `mining_pubchem/reaction_find.sh` script.
 
 ```bash
@@ -39,7 +40,7 @@ python reacts_concatenation.py --input ../../working_files/reactions_dir/ --outp
 1. Substances are converted into vector form using a script `clustering_reactions/smi2vec.py`.
 
 ```bash
-cd QM9/clustering_reactions
+cd clustering_reactions
 python smi2vec.py --p-vocab ../../working_files/vocab.pkl --p-trfm ../../working_files/trfm.pkl --smi ../../working_files/embeds/smiles_reags.txt --output ../../working_files/embeds/reags.npy & python smi2vec.py --p-vocab ../../working_files/vocab.pkl --p-trfm ../../working_files/trfm.pkl --smi ../../working_files/embeds/smiles_prods.txt --output ../../working_files/embeds/prods.npy
 ```
 
@@ -60,7 +61,7 @@ python cluster_reactions.py --input ../../working_files/embeds_reacts.pkl --meth
 1. To select a certain number of reactions from each cluster using the `creation_reaction_cards/filter_reactions_by_energy.py` script:
 
 ```bash
-cd QM9/creation_reaction_cards
+cd creation_reaction_cards
 python filter_reactions_by_energy.py --reactions ../../working_files/reactions.pkl --db-name 'CAS' --model ../../working_files/qm9_model.pkl --number 18 --output ../../working_files/need_reactions.pkl --output-numbers ../../working_files/reactions_numbers.pkl
 ```
 
@@ -75,7 +76,7 @@ python parse_manual_labels.py --archive ../../working_files/marks_of_reacts.zip 
 1. Search for alkynes within the database using the `laboratory_database_of_reagents/get_substituents.py` script:
 
 ```bash
-cd QM9/laboratory_database_of_reagents
+cd laboratory_database_of_reagents
 python get_substituents.py --input-db ../../working_files/ReagentsLB30.sdf --output-db ../../working_file/smiles_alkynes_fin.txt
 ```
 
@@ -84,7 +85,7 @@ python get_substituents.py --input-db ../../working_files/ReagentsLB30.sdf --out
 1. Handling Labeled Reactions using the `generate_computation/generate_mopac_smiles.py` script:
 
 ```bash
-cd QM9/generate_computation
+cd generate_computation
 python generate_mopac_smiles.py ../../working_files/reacts_map.pkl ../../working_files/smiles_alkynes_fin.txt ../../working_files/products.txt
 ```
 
@@ -115,8 +116,9 @@ python prop_rxns.py ../../working_files/reagents_energy.txt ../../working_files/
 ### Choice of reactions from the counted
 
 1. Sort Reactions using the `final_filter/fine_filter_reactions_by_energy.py` script:
+
 ```bash
-cd QM9/final_filter
+cd final_filter
 python fine_filter_reactions_by_energy.py --input-csv ../../working_files/calc_reactions.csv --number 10 --output ../../working_files/need_reactions.csv
 ```
 
